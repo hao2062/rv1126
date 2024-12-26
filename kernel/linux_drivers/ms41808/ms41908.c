@@ -2482,6 +2482,11 @@ static const struct v4l2_ctrl_ops motor_ctrl_ops = {
 	.s_ctrl = motor_s_ctrl,
 };
 
+/* 
+ * @description    : 初始化相机马达驱动的控制接口（光圈，变焦和聚焦功能）
+ * @param   *motor ：
+ * @return          
+ */
 static int motor_initialize_controls(struct motor_dev *motor)
 {
 	struct v4l2_ctrl_handler *handler;
@@ -2492,23 +2497,30 @@ static int motor_initialize_controls(struct motor_dev *motor)
 	#endif
 	unsigned long flags = V4L2_CTRL_FLAG_EXECUTE_ON_WRITE | V4L2_CTRL_FLAG_VOLATILE;
 
-	handler = &motor->ctrl_handler;
+	pr_info("Funcition: motor_initialize_controls");
+
+	handler = &motor->ctrl_handler;				// 为马达驱动分配一个 v4l2 控制接口
 	ret = v4l2_ctrl_handler_init(handler, 3);
 	if (ret)
 		return ret;
+	
+	// 是否启用 DC 光圈？：否
 	if (motor->is_use_dc_iris) {
 		motor->iris_ctrl = v4l2_ctrl_new_std(handler, &motor_ctrl_ops,
 			V4L2_CID_IRIS_ABSOLUTE, 0, motor->dciris->max_log, 1, 0);
 		if (motor->iris_ctrl)
 			motor->iris_ctrl->flags |= flags;
-
+	// 如果是步进光圈？：是
+	// 支持通过 v4l2 接口设置光圈电机位置
 	} else if (motor->is_use_p_iris) {
 		#ifdef REINIT_BOOT
-		ret = motor_reinit_piris(motor);
+		pr_info("REINIT_BOOT IS ON");
+		ret = motor_reinit_piris(motor);		// 初始化光圈位置
 		if (ret < 0)
 			return -EINVAL;
 		#endif
-		motor->piris->last_pos = motor->piris->min_pos;
+		motor->piris->last_pos = motor->piris->min_pos;		// 将当前位置设为最小位置
+		// 设置一个 v4l2 控制项，用于通过标准接口设置光圈电机位置。用户可以通过 v4l2 接口设置光圈电机
 		motor->iris_ctrl = v4l2_ctrl_new_std(handler, &motor_ctrl_ops,
 						     V4L2_CID_IRIS_ABSOLUTE,
 						     motor->piris->min_pos,
