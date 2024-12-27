@@ -184,7 +184,7 @@ static int __init my_video_driver_init(void)
     // 异步通知的子设备列表 需要 动态分配
     if (notifier.subdevs == NULL) {  
         // 手动分配 subdevs 列表
-        notifier.subdevs = kzalloc(sizeof(struct v4l2_async_subdev*),GFP_KERNEL);  
+        notifier.subdevs = kzalloc(sizeof(struct v4l2_async_subdev*), GFP_KERNEL);  
         if (notifier.subdevs == NULL) {  
             // 处理内存分配失败  
             printk("shibai\n");
@@ -195,8 +195,8 @@ static int __init my_video_driver_init(void)
     // 把我们定义的子设备和通知器 添加到 子设备列表
     notifier.subdevs[notifier.num_subdevs++] = &my_async_subdev; 
 
-    printk("%s\n",notifier.subdevs[0]->match.device_name);
-    printk("%d\n",sizeof(*(vdev->nodedev)));
+    printk("%s\n",notifier.subdevs[0]->match.device_name);  // spi1.0
+    printk("%d\n",sizeof(*(vdev->nodedev)));                // 824
 
     // 为 vdev->nodedev 分配内存，确保视频设备节点可以存储
     vdev->nodedev = kzalloc(sizeof(*(vdev->nodedev)), GFP_KERNEL); 
@@ -213,7 +213,7 @@ static int __init my_video_driver_init(void)
     //vdev->nodedev.lock = &your_lock; // 设置锁，用于同步访问  
     //vdev->nodedev->name = "VEDIO"; // 设置设备名称  
     memcpy(vdev->nodedev->name, name, 3);   // 设置设备名为 zsr
-    printk("%s\n",vdev->nodedev->name);
+    printk("%s\n",vdev->nodedev->name);     // zsr
     vdev->nodedev->v4l2_dev=&vdev->v4l2_dev;    // 把 v4l2_dev 赋值给 nodedev->v4l2_dev，表示该 video 节点归属与主设备
 
     // 注册视频设备节点，即 /dev/videox
@@ -224,7 +224,7 @@ static int __init my_video_driver_init(void)
         printk(KERN_ERR "Failed to register async subdev: %d\n", ret);   
     }  
     
-    printk("nnn\n");
+    // printk("nnn\n");
     
     // 把异步通知器注册到 V4L2 主设备，开启子设备的异步匹配和绑定的流程
     v4l2_async_notifier_register(&vdev->v4l2_dev, &notifier);

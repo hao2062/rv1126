@@ -37,7 +37,11 @@ Copyright © ALIENTEK Co., Ltd. 1998-2029. All rights reserved.
 #define  WRITE  2		// 写寄存器
 #define  READ  3		// 读寄存器
 #define RK_VIDIOC_IRIS_CORRECTION \
-	_IOR('V', BASE_VIDIOC_PRIVATE + 6, unsigned int)	// 光耦修正
+	_IOR('V', BASE_VIDIOC_PRIVATE + 6, unsigned int)		// 光耦修正
+#define RK_VIDIOC_ZOOM_CORRECTION \
+	_IOR('V', BASE_VIDIOC_PRIVATE + 7, unsigned int)		// 变焦修正
+#define RK_VIDIOC_ZOOM1_CORRECTION \
+	_IOR('V', BASE_VIDIOC_PRIVATE + 12, unsigned int)
 #define RK_VIDIOC_WRITE_REG \
 	_IOW('V', BASE_VIDIOC_PRIVATE + 17, struct reg_struct)	// 写寄存器
 #define RK_VIDIOC_READ_REG \
@@ -99,7 +103,8 @@ int main(int argc, char *argv[])
 
 		// 寻找光耦
 		if(cmd==0){
-			if (ioctl(fd, RK_VIDIOC_IRIS_CORRECTION, NULL) == -1) {  
+			// if (ioctl(fd, RK_VIDIOC_IRIS_CORRECTION, NULL) == -1) {  
+			if (ioctl(fd, RK_VIDIOC_ZOOM1_CORRECTION, NULL) == -1) {  
 			} 
 		}  
 		
