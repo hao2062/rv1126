@@ -729,10 +729,11 @@ static int motor_dev_parse_dt(struct motor_dev *motor)
 							"focus_pic", GPIOD_IN);
 		if (IS_ERR(motor->focus->pic_gpio))
 			dev_err(&motor->spi->dev, "Failed to get focus-pi-c-gpios\n");
-		motor->focus->pia_gpio = devm_gpiod_get(&motor->spi->dev,
-							"focus_pia", GPIOD_OUT_LOW);
-		if (IS_ERR(motor->focus->pia_gpio))
-			dev_err(&motor->spi->dev, "Failed to get focus-pi-a-gpios\n");
+		// 删除下面的 pia 注册过程
+		// motor->focus->pia_gpio = devm_gpiod_get(&motor->spi->dev,
+		// 					"focus_pia", GPIOD_OUT_LOW);
+		// if (IS_ERR(motor->focus->pia_gpio))
+		// 	dev_err(&motor->spi->dev, "Failed to get focus-pi-a-gpios\n");
 		motor->focus->pie_gpio = devm_gpiod_get(&motor->spi->dev,
 							"focus_pie", GPIOD_OUT_LOW);
 		if (IS_ERR(motor->focus->pie_gpio))
@@ -2606,24 +2607,26 @@ static void dev_param_init(struct motor_dev *motor)
 
 	pr_info("Function: dev_param_init.");
 
-	motor->piris->reg_op = &motor->motor_op[0];
-	motor->vd_fz_period_us=25000;	// 电机 vd 周期
-	motor->piris->start_up_speed=120;	// 电机转速
-	motor->piris->is_dir_opp=true;	// 是否反转
-	motor->piris->is_half_step_mode=true;	// 启动半步模式
-	if(motor->piris->is_half_step_mode)
-		par=4;
-	else
-		par=8;
+	// if (motor->is_use_p_iris) {
+	// 	motor->piris->reg_op = &motor->motor_op[0];
+	// 	motor->vd_fz_period_us=25000;	// 电机 vd 周期
+	// 	motor->piris->start_up_speed=120;	// 电机转速
+	// 	motor->piris->is_dir_opp=true;	// 是否反转
+	// 	motor->piris->is_half_step_mode=true;	// 启动半步模式
+	// 	if(motor->piris->is_half_step_mode)
+	// 		par=4;
+	// 	else
+	// 		par=8;
+	// }
 
 	// 增加：打印设置的值
-    printk("P Iris settings:\n");
-    printk("  reg_op address: %p\n", motor->piris->reg_op);
-    printk("  vd_fz_period_us: %u\n", motor->vd_fz_period_us);
-    printk("  start_up_speed: %u\n", motor->piris->start_up_speed);
-    printk("  is_dir_opp: %d\n", motor->piris->is_dir_opp);
-    printk("  is_half_step_mode: %d\n", motor->piris->is_half_step_mode);
-    printk("  par value: %d\n", par);
+    // printk("P Iris settings:\n");
+    // printk("  reg_op address: %p\n", motor->piris->reg_op);
+    // printk("  vd_fz_period_us: %u\n", motor->vd_fz_period_us);
+    // printk("  start_up_speed: %u\n", motor->piris->start_up_speed);
+    // printk("  is_dir_opp: %d\n", motor->piris->is_dir_opp);
+    // printk("  is_half_step_mode: %d\n", motor->piris->is_half_step_mode);
+    // printk("  par value: %d\n", par);
 	if (motor->is_use_p_iris) {
 		pr_info("motor->is_use_p_iris");
 
@@ -2832,6 +2835,7 @@ static int dev_init(struct motor_dev *motor)
 	// 删除：去掉 ret 变量的使用
 	// int ret = 0;
 
+	ssleep (1);
 	if (!IS_ERR(motor->reset_gpio)) {
 		gpiod_set_value_cansleep(motor->reset_gpio, 0);
 		usleep_range(100, 200);
@@ -2839,12 +2843,13 @@ static int dev_init(struct motor_dev *motor)
 	}
 
 	// 增加：初始化光耦使能管脚
-	if (!IS_ERR(motor->piris->pie_gpio)) {
+	// 修改：在操作光圈点击前，先判断是否是空指针
+	if (motor->piris && !IS_ERR(motor->piris->pie_gpio)) {
 		gpiod_set_value_cansleep(motor->piris->pie_gpio, 0);
 		usleep_range(100, 200);
 		gpiod_set_value_cansleep(motor->piris->pie_gpio, 1);
 	}
-
+	pr_info("test panic C");
 	// 删除：取消掉检查 motor id 的步骤
 	// ret = motor_check_id(motor);
 	// if (ret < 0)
@@ -2852,7 +2857,7 @@ static int dev_init(struct motor_dev *motor)
 	dev_param_init(motor);
 
 	dev_reg_init(motor);
-	
+	pr_info("test panic D");
 	motor->wk = devm_kzalloc(&motor->spi->dev, sizeof(*motor->wk), GFP_KERNEL);
 	if (!motor->wk) {
 		dev_err(&motor->spi->dev, "failed to alloc work struct\n");
@@ -2906,9 +2911,11 @@ static int motor_dev_probe(struct spi_device *spi)
 	}
 
 	pr_info("parse_dt down");
-	
+	// ssleep(1);
+	// pr_info("test panic A");
 	// 初始化 motor 设备
 	ret = dev_init(motor);
+	// pr_info("test panic A");
 	if (ret)
 		goto err_free;
 	// 加锁
@@ -2939,7 +2946,6 @@ static int motor_dev_probe(struct spi_device *spi)
 		 motor->module_index, facing,
 		 DRIVER_NAME,
 		 motor->id);
-	
 	// 异步注册子设备
 	ret = v4l2_async_register_subdev(sd);
 	if (ret)
@@ -2974,7 +2980,7 @@ static int motor_dev_remove(struct spi_device *spi)
 
 static const struct spi_device_id motor_match_id[] = {
 	// {"relmon,ms41908", 0 },
-	{"piris,test", 0 },
+	{"zoom1andfocus,test", 0 },
 	{ }
 };
 MODULE_DEVICE_TABLE(spi, motor_match_id);
@@ -2982,7 +2988,7 @@ MODULE_DEVICE_TABLE(spi, motor_match_id);
 #if defined(CONFIG_OF)
 static const struct of_device_id motor_dev_of_match[] = {
 	// {.compatible = "relmon,ms41908", },
-	{.compatible = "piris,test", },
+	{.compatible = "zoom1andfocus,test", },
 	{},
 };
 #endif
