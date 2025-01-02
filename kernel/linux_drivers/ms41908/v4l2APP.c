@@ -39,9 +39,9 @@ Copyright © ALIENTEK Co., Ltd. 1998-2029. All rights reserved.
 #define RK_VIDIOC_IRIS_CORRECTION \
 	_IOR('V', BASE_VIDIOC_PRIVATE + 6, unsigned int)		// 光耦修正
 #define RK_VIDIOC_ZOOM_CORRECTION \
-	_IOR('V', BASE_VIDIOC_PRIVATE + 7, unsigned int)		// 变焦修正
+	_IOR('V', BASE_VIDIOC_PRIVATE + 7, unsigned int)		// 变焦修正 zoom
 #define RK_VIDIOC_ZOOM1_CORRECTION \
-	_IOR('V', BASE_VIDIOC_PRIVATE + 12, unsigned int)
+	_IOR('V', BASE_VIDIOC_PRIVATE + 12, unsigned int)		// 变焦修正 zoom1
 #define RK_VIDIOC_WRITE_REG \
 	_IOW('V', BASE_VIDIOC_PRIVATE + 17, struct reg_struct)	// 写寄存器
 #define RK_VIDIOC_READ_REG \

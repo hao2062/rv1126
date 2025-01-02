@@ -1,0 +1,79 @@
+&spi1 {
+    status = "okay";
+    max-freq = <50000000>;
+    pinctrl-names = "default", "high_speed","pic-gpio" ;
+    assigned-clocks = <&pmucru CLK_SPI0>;
+    assigned-clock-rates = <100000000>;
+    pinctrl-0 = <&spi1m2_cs0 &spi1m2_cs1   &spi1m2_pins &pic_gpio>;//&pic_gpio需要设置为上拉，在pirctrl.dtsi中配置
+    pinctrl-1 = <&spi1m2_cs0 &spi1m2_cs1   &spi1m2_pins_hs>;
+	
+    //具体驱动设置参数含义参考Rockchip_Driver_Guide_VI_CN_v1.0.8文件解释
+    //1. spi子设备1为控制piris光圈设备
+    // spidev1: test@00 {
+    //     compatible = "piris,test";
+    //     spi-max-frequency = <8000000>;  // SPI 通讯速率
+    //     vd_fz-period-us = <25000>;
+    //     vd_fz-gpios=<&gpio0 RK_PC2 GPIO_ACTIVE_HIGH>;       // MOTOR_VD_FZ_Len1（GPIO0 C2） ：同步信号
+    //     use-p-iris;
+    //     piris-used-pin="ab";
+    //     piris-backlash=<0>;
+    //     piris-start-up-speed=<120>; // piris速度为120PPS，其余电机为800PPS
+    //     piris-step-max=<50>;
+    //     piris-ppw=<100>;
+    //     piris-micro=<256>;
+    //     piris-min-pos=<4>;
+    //     piris-max-pos=<46>;
+    //     piris-reback-distance=<0>;
+    //     reset-gpios=<&gpio0 RK_PC3 GPIO_ACTIVE_HIGH>;       // MOTOR_RST_Len1 管脚（GPIO0 C3）：复位
+    //     piris_pic-gpios=<&gpio0 RK_PC0 GPIO_ACTIVE_HIGH>;   // P-IRIS_COLLECTOR （GPIO0 C0） ：光耦的 C 引脚，检测电平变化
+    //     bias-pull-up; // 收集GPIO需要改完上拉
+    //     piris_test-gpios=<&gpio0 RK_PA2 GPIO_ACTIVE_HIGH>;  // P-IRIS_COLLECTOR （GPIO0 C2）：ms41928 测试模式输入
+    //     piris_pie-gpios=<&gpio3 RK_PD1 GPIO_ACTIVE_HIGH>;   // P-IRIS_Opto_EN (GPIO3 D1)：使能光耦
+    //     piris-1-2phase-excitation;
+    //     rockchip,camera-module-facing="front";
+    //     reg = <0>; //cs0
+    // };
+    
+    //2. 子设备2为控制zoom1andfocus设备，
+	spidev2: test1@00 {
+        compatible = "zoom1andfocus,test";
+        spi-max-frequency = <8000000>;  
+        vd_fz-period-us = <10000>;      // 同步信号周期
+        vd_fz-gpios=<&gpio0 RK_PC2 GPIO_ACTIVE_HIGH>;
+        use-zoom1;
+        // use-focus;
+        zoom1-used-pin="ab";            // 引脚组
+        // focus-used-pin="cd";
+        zoom1-backlash=<0>;
+        // focus-backlash=<0>;
+        zoom1-start-up-speed=<800>;     // 启动速度
+        // focus-start-up-speed=<800>;
+        // focus-step-max=<50>;
+        zoom1-step-max=<1802>;
+        // focus-ppw=<200>;        
+        zoom1-ppw=<200>;                
+        // focus-micro=<64>;
+        zoom1-micro=<64>;
+        // focus-min-pos=<4>;
+        // focus-max-pos=<46>;
+        zoom1-min-pos=<748>;
+        zoom1-max-pos=<1054>;
+        zoom1-reback-distance=<0>;
+        // focus-reback-distance=<0>;
+        //具体GPIO还需后面选，这里和光圈使用同组测试
+        reset-gpios=<&gpio0 RK_PC3 GPIO_ACTIVE_HIGH>;
+        zoom1_pic-gpios=<&gpio0 RK_PC0 GPIO_ACTIVE_HIGH>;
+        // 增加 focus_pic，但使用别的 IO（因为现在硬件没接）
+        // focus_pic-gpios=<&gpio0 RK_PA0 GPIO_ACTIVE_HIGH>;
+        bias-pull-up;
+        zoom1_pie-gpios=<&gpio3 RK_PD1 GPIO_ACTIVE_HIGH>;
+         // 增加 focus_pie，但使用别的 IO（因为现在硬件没接）
+        // focus_pie-gpios=<&gpio2 RK_PC0 GPIO_ACTIVE_HIGH>;
+
+        // zoom1-1-2phase-excitation;
+        zoom1-dir-opposite;
+        
+        rockchip,camera-module-facing="front";
+        reg = <0>; //cs1
+    };
+};
