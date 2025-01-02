@@ -46,7 +46,8 @@ Copyright © ALIENTEK Co., Ltd. 1998-2029. All rights reserved.
 	_IOW('V', BASE_VIDIOC_PRIVATE + 17, struct reg_struct)	// 写寄存器
 #define RK_VIDIOC_READ_REG \
 	_IOW('V', BASE_VIDIOC_PRIVATE + 18, struct reg_struct)	// 读寄存器
-
+#define RK_VIDIOC_FOCUS_CORRECTION \
+	_IOR('V', BASE_VIDIOC_PRIVATE + 5, unsigned int)
 
 /*
  * @description		: main主程序
@@ -104,7 +105,7 @@ int main(int argc, char *argv[])
 		// 寻找光耦
 		if(cmd==0){
 			// if (ioctl(fd, RK_VIDIOC_IRIS_CORRECTION, NULL) == -1) {  
-			if (ioctl(fd, RK_VIDIOC_ZOOM1_CORRECTION, NULL) == -1) {  
+			if (ioctl(fd, RK_VIDIOC_FOCUS_CORRECTION, NULL) == -1) {  
 			} 
 		}  
 		

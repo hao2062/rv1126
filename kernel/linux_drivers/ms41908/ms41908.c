@@ -1749,7 +1749,7 @@ static int motor_reinit_focus(struct motor_dev *motor)
 		#else
 		motor->focus->last_pos = 0;
 		#endif
-		ret = motor_find_pi(motor, motor->focus, 200);
+		ret = motor_find_pi(motor, motor->focus, 0);
 		if (ret < 0) {
 			dev_info(&motor->spi->dev,
 				 "get focus pi fail, pls check it\n");
