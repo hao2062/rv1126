@@ -1798,6 +1798,9 @@ static void motor_reinit_focus_pos(struct motor_dev *motor)
 				 1, 0);
 }
 
+
+
+
 static int  motor_reinit_zoom(struct motor_dev *motor)
 {
 	int ret = 0;
